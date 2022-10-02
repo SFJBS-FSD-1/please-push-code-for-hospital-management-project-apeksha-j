@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital Management</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"><!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <style>
+        form { border="3px solid #f1f1f1":}
+    </style>
+</head>
+<body style="background: url(https://img.freepik.com/free-photo/doctor-with-stethoscope-hands-hospital-background_1423-1.jpg?w=740&t=st=1664704814~exp=1664705414~hmac=e305c32e76356a77d2d4f9bbcda65549f1a4a97e2892fb2f25853b06087af785);background-size:100%;">
+<div class="container">
+<h1 style="font-family:algerian;">Red Cross Hospital</h1>
+    <h2 style="font-family:commanders;">Welcome to Red Cross Hospital. Please choose your requirement :</h2>
+
+<form method="get" action="/register_patient">
+    <div class="form-container">
+        <button type="submit" style="margin:5px;"> Register a New Patient</button>
+    </div>
+</form>
+
+<form method="get" action="/getAllPatients">
+     <div class="form-container">
+        <button type="submit" style="margin:5px;"> Check Patients List </button>
+     </div>
+</form>
+
+<form method="get" action="/getPatient">
+     <div class="form-container">
+        <button type="submit" style="margin:5px;"> Check Patient by Id </button>
+     </div>
+</form>
+
+<form method="get" action="/register_medicine">
+     <div class="form-container">
+        <button type="submit" style="margin:5px;"> Check Medicines </button>
+     </div>
+</form>
+</div>
+</body>
+</html>

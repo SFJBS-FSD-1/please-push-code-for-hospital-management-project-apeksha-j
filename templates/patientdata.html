@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital Management</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"><!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <style>
+        form { border="3px solid #f1f1f1":}
+    </style>
+
+</head>
+<body style="background :url(https://s27389.pcdn.co/wp-content/uploads/2021/07/biggest-data-science-trends-healthcare-1024x440.jpeg.webp);background-size:100%;">
+<div class="container">
+<h2 style="font-family:algerian;">Patient Registration Form</h2>
+    <h3>Please enter the details below:</h3>
+
+<form method="post" action="/register_patient">
+    <div class="form-container">
+        <label><b>Name</b></label>
+        <input type="text" name="name" required>
+    </div>
+
+    <div class="form-container">
+        <label><b>Phone Number</b></label>
+        <input type="text" name="phone" required>
+    </div>
+
+    <div class="form-container">
+        <label><b>Age</b></label>
+        <input type="text" name="age" required>
+    </div>
+
+    <div class="form-container">
+        <label><b>Address</b></label>
+        <input type="text" name="address" required>
+
+        <label><b>State</b></label>
+        <input type="text" name="state" required>
+
+        <label><b>City</b></label>
+        <input type="text" name="city" required>
+    </div>
+
+    <div class="form-container">
+        <label><b>Patient Status</b></label>
+        <input type="text" name="status">
+    </div>
+
+    <div class="form-container">
+        <label><b>Bed Type</b></label>
+        <input type="text" name="bed">
+    </div>
+
+    <div class="form-container">
+        <button type="submit"> Register </button>
+    </div>
+</form>
+
+{% if patient %}
+<h3>{{patient}} has been registered with us successfully!</h3>
+    <h3>Press below button to check the Patients List.</h3>
+<form method="get" action="/getAllPatients">
+    <button type="submit" > Patients List </button>
+</form>
+{% endif %}
+
+{% if msg %}
+<h4>{{msg}}</h4>
+<form method="get" action="/getPatient">
+
+</form>
+{% endif %}
+
+</div>
+</body>
+</html>
