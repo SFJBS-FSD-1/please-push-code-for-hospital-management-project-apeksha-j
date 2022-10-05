@@ -1,13 +1,33 @@
 from flask import Flask,render_template,request,jsonify
 from flask_sqlalchemy import SQLAlchemy
-# from flask_migrate import Migrate
+from flask_migrate import Migrate
 import os
 
+class Config:
+    DEBUG = False
+    SQLALCHEMY_DATABASE_URI= 'postgresql+psycopg2://root:1234@localhost:5432/hospitaldb'
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://root:1234@localhost:5432/hospitaldb'
+
+class ProductionConfig(Config):
+    uri = os.environ.get("DATABASE_URL")
+    if uri and uri.startswith("postgres://"):
+        uri=uri.replace("postgres://","postgresql://",1)
+    SQLALCHEMY_DATABASE_URI = uri
+
+env = os.environ.get("ENV","Development")
+
+if env=="Production":
+    config_str= ProductionConfig
+else:
+    config_str= DevelopmentConfig
+
 app = Flask(__name__)
-# app.config.from_object(config_str)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:welcome$1234@localhost/hospitaldb'
+app.config.from_object(config_str)
 db = SQLAlchemy(app)
-# migrate = Migrate(app,db)
+migrate = Migrate(app,db)
 
 class Patient(db.Model):
     id = db.Column(db.Integer,primary_key = True)
@@ -19,6 +39,12 @@ class Patient(db.Model):
     city = db.Column(db.String(50), nullable=False)
     patient_status = db.Column(db.String(20), nullable = True)
     bed_type = db.Column(db.String(20), nullable=True)
+
+class Medicine(db.Model):
+    id = db.Column(db.Integer,primary_key = True)
+    medicine_name = db.Column(db.String(150),  nullable = False)
+    quantity = db.Column(db.Integer, nullable = False)
+    rate = db.Column(db.String(50), nullable = False)
 
 def get_patients():
     patients = Patient.query.all()
@@ -36,6 +62,17 @@ def get_patients():
         dict['bed'] = patient.bed_type
         patients_list.append(dict)
     return patients_list
+
+def medicine_details():
+    id = request.form['id']
+    medicine = Medicine.query.filter_by(id=id).first()
+    print(id,medicine)
+    medicine_data={}
+    if medicine:
+        medicine_data = {'id': medicine.id, 'name': medicine.medicine_name,
+                         'qty': medicine.quantity, 'rate': medicine.rate}
+    print(medicine_data)
+    return medicine_data
 
 def patient_data():
     phone = request.form["phone"]
@@ -151,6 +188,94 @@ def patient_delete():
             return("Patient deleted successfully.")
         else:
             return("Patient not found.")
+
+@app.route('/register_medicine',methods=['GET','POST'])
+def register_medicine():
+    if request.method == "GET":
+        return render_template("medicinedata.html")
+
+    if request.method == "POST":
+        medicine_name = request.form["name"]
+        quantity = request.form["qty"]
+        rate = request.form["rate"]
+
+        medicine = Medicine.query.filter_by(id=id).first()
+        if medicine:
+            return render_template("medicinedata.html", msg="Medicine already registered")
+        else:
+            new_medicine = Medicine(medicine_name=medicine_name,quantity=quantity,rate=rate)
+            db.session.add(new_medicine)
+            db.session.commit()
+            return render_template("medicinedata.html", medicine=medicine_name)
+
+@app.route('/getAllMedicines',methods=['GET'])
+def medicines_list():
+    if request.method == 'GET':
+        medicines = Medicine.query.all()
+        medicines_list=[]
+        for medicine in medicines:
+            dict={}
+            dict['id']= medicine.id
+            dict['name'] = medicine.medicine_name
+            dict['qty'] = medicine.quantity
+            dict['rate'] = medicine.rate
+            medicines_list.append(dict)
+        return render_template("MedicineDatainfo.html",medicine = medicines_list)
+
+@app.route('/getMedicine',methods=['GET'])
+def medicine_details():
+    if request.method == 'GET':
+        return render_template("MedicineActions.html")
+
+@app.route('/getMedicineById', methods=['GET','POST'])
+def medicine_by_Id():
+    if request.method == 'POST':
+        medicine_data = medicine_details()
+        print(medicine_data)
+        # if medicine_data:
+        if medicine_details:
+            return render_template("MedicineActions.html",data=medicine_data)
+        else:
+            return render_template("MedicineActions.html", msg="Medicine not Found")
+
+@app.route('/updateMedicine', methods=['POST'])
+def medicine_update():
+    if request.method == 'POST':
+        medicine_data = medicine_details()
+        print(medicine_data)
+        # if medicine_data:
+        if medicine_details:
+            return render_template("MedicineActions.html", update_msg =medicine_data)
+        else:
+            return render_template("MedicineActions.html", msg="Medicine not Found")
+
+@app.route('/updatemed', methods=['POST'])
+def updatemed():
+    if request.method == 'POST':
+        print("inside update")
+        id = request.form['id']
+        medicine_name = request.form['name']
+        quantity = request.form['qty']
+        rate=request.form['rate']
+
+        update_medicine = Medicine(medicine_name=medicine_name, quantity=quantity, rate=rate)
+        medicine_data = {'id': update_medicine.id, 'medicine_name': update_medicine.medicine_name,
+                           'quantity': update_medicine.quantity, 'rate': update_medicine.rate}
+        Medicine.query.filter_by(id=id).update(medicine_data)
+        db.session.commit()
+        return render_template("MedicineActions.html", update=medicine_data)
+
+@app.route('/deleteMedicine', methods=['GET','POST'])
+def medicine_delete():
+    if request.method == 'POST':
+        id = request.form["id"]
+        medicine = Medicine.query.filter_by(id=id).first()
+        if medicine:
+            Medicine.query.filter_by(id=id).delete()
+            db.session.commit()
+            return("Medicine deleted successfully.")
+        else:
+            return("Medicine not found.")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5001))
